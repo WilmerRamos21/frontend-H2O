@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { useFetch } from "../hooks/useFetch.js";
 import { ModalOrderDetail } from "./ModalOrder";
 
-
 // Este componente es puramente visual
 export const OrderTableUI = ({ orders, title, showCustomer = false, isAdmin = false, onUpdateShipment, filtros, endpoint }) => {
     const [orderSelected, setOrderSelected] = useState(null);
@@ -13,38 +12,38 @@ export const OrderTableUI = ({ orders, title, showCustomer = false, isAdmin = fa
         setIsModalOpen(true);
     };
 
-    const [data, setData] = useState({orders: [], totalPages:1})
-    const [page, setPage] = useState(1)
-    const [loading, setLoading] = useState(true)
-    const fetchData = useFetch()
+    const [data, setData] = useState({ orders: [], totalPages: 1 });
+    const [page, setPage] = useState(1);
+    const [loading, setLoading] = useState(true);
+    const fetchData = useFetch();
 
-    useEffect(()=>{
+    useEffect(() => {
         const getOrders = async () => {
-            setLoading(true)
+            setLoading(true);
 
             const query = new URLSearchParams({
                 page,
                 limit: 10,
                 ...filtros
-            }).toString()
-            // Si no recibe un endpoint por prop, usa por defecto el de administrador o el personal según corresponda
+            }).toString();
+
             const urlEndpoint = endpoint || (isAdmin ? "admin/ordenes" : "ordenes");
 
             const res = await fetchData(`${urlEndpoint}?${query}`, null, "GET");
 
             if (res) setData(res);
-            setLoading(false)
-        }
+            setLoading(false);
+        };
         getOrders();
-    }, [page, filtros])
+    }, [page, filtros]);
     
     useEffect(() => {
-        setPage(1); // <--- Resetea la página a 1 cada vez que los filtros cambian (ej. al escribir en el buscador)
+        setPage(1); 
     }, [filtros]);
 
-    if (loading) return <div className="p-10 text-center">Cargando pedidos...</div>
+    if (loading) return <div className="p-10 text-center">Cargando pedidos...</div>;
 
-    // Colores para los estado de envio
+    // Colores para los estados de envío
     const getShipmentStyle = (status) => {
         switch(status) {
             case "Preparando envío":
@@ -54,25 +53,21 @@ export const OrderTableUI = ({ orders, title, showCustomer = false, isAdmin = fa
             case "Envío completado":
                 return "bg-green-100 text-green-700";
             default: 
-            return "bg-gray-100 text-gray-500"
+                return "bg-gray-100 text-gray-500";
         }
-    }
+    };
 
-    // Funcion de contactar con soporte
-    const contactarSoporte = (orderNumber) => {
-        const telefono = import.meta.env.VITE_WHATSAPP_NUMBER;
+    // Función de contactar con soporte vía WhatsApp
+    const contactarSoporte = (orderNumber, orderId) => {
+        const telefono = import.meta.env.VITE_WHATSAPP_NUMBER || "";
+        const identificador = orderNumber || orderId.slice(-6);
 
-        const mensaje = `Hola, quisiera consultar el estado de mi pedido.
-        Número de pedido: ${orderNumber}.
-        ¿Podrían ayudarme con información sobre mi compra?`;
+        const mensaje = `Hola, quisiera consultar el estado de mi pedido.\nNúmero de pedido: ${identificador}.\n¿Podrían ayudarme con información sobre mi compra?`;
         const url = `https://wa.me/${telefono}?text=${encodeURIComponent(mensaje)}`;
 
         window.open(url, '_blank');
-
     };
 
-    
-    
     return (
         <>
             <div className="bg-white shadow-md rounded-lg overflow-hidden border border-gray-200">
@@ -80,7 +75,7 @@ export const OrderTableUI = ({ orders, title, showCustomer = false, isAdmin = fa
                     <h2 className="font-bold text-gray-700 uppercase text-sm tracking-wider">{title}</h2>
                 </div>
                 
-                {/* Versión Escritorio */}
+                {/* --- Versión Escritorio --- */}
                 <div className="hidden md:block overflow-x-auto">
                     <table className="w-full text-left border-collapse">
                         <thead className="bg-white border-b">
@@ -92,13 +87,13 @@ export const OrderTableUI = ({ orders, title, showCustomer = false, isAdmin = fa
                                 <th className="p-4 font-semibold text-gray-600 text-xs uppercase">Total</th>
                                 <th className="p-4 font-semibold text-gray-600 text-xs uppercase">Pago</th>
                                 <th className="p-4 font-semibold text-gray-600 text-xs uppercase">Estado del envío</th>
-                                <th className="p-4 font-semibold text-gray-600 text-xs uppercase text-center">Acción</th>
+                                <th className="p-4 font-semibold text-gray-600 text-xs uppercase text-center">Acciones</th>
                             </tr>
                         </thead>
                         <tbody>
                             {(data?.orders || []).map((order) => (
                                 <tr key={order._id} className="border-b hover:bg-blue-50/30 transition">
-                                    <td className = "p-4 text-sm font-bold text-[#005596]">
+                                    <td className="p-4 text-sm font-bold text-[#005596]">
                                         {order.orderNumber || "Sin número"}
                                     </td>
                                     <td className="p-4 text-xs text-gray-500">{new Date(order.createdAt).toLocaleDateString()}</td>
@@ -116,19 +111,26 @@ export const OrderTableUI = ({ orders, title, showCustomer = false, isAdmin = fa
                                             {order.status}
                                         </span>
                                     </td>
-                                    {/* ESTADO DEL ENVÍO*/}
-                                    <td className = "p-4">
+                                    {/* ESTADO DEL ENVÍO */}
+                                    <td className="p-4">
                                         <span className={`px-2 py-1 rounded-full text-[10px] font-black uppercase ${getShipmentStyle(order.shipment?.status)}`}>
                                             {order.shipment?.status || "Sin envío"}
                                         </span>
                                     </td>
-                                    {/* ACCIONES */}
-                                    <td className="p-4 text-center">
+                                    {/* ACCIONES ESCRITORIO */}
+                                    <td className="p-4 text-center space-x-2">
                                         <button 
                                             onClick={() => handleViewDetail(order)}
                                             className="text-[#005596] hover:bg-[#005596] hover:text-white border border-[#005596] px-3 py-1 rounded-md text-xs font-bold transition-colors"
                                         >
                                             Ver Detalle
+                                        </button>
+                                        <button 
+                                            onClick={() => contactarSoporte(order.orderNumber, order._id)}
+                                            className="text-green-700 hover:bg-green-700 hover:text-white border border-green-600 px-3 py-1 rounded-md text-xs font-bold transition-colors"
+                                            title="Contactar por WhatsApp"
+                                        >
+                                            Soporte
                                         </button>
                                     </td>
                                 </tr>
@@ -137,12 +139,12 @@ export const OrderTableUI = ({ orders, title, showCustomer = false, isAdmin = fa
                     </table>
                 </div>
 
-                {/* Versión Móvil */}
+                {/* --- Versión Móvil --- */}
                 <div className="md:hidden divide-y divide-gray-100">
                     {(data?.orders || []).map((order) => (
                         <div key={order._id} className="p-4 space-y-3">
-                            <div className="flex justify-between">
-                                <span className = "text-xs text-[#005596] font-bold">
+                            <div className="flex justify-between items-center">
+                                <span className="text-xs text-[#005596] font-bold">
                                     {order.orderNumber || "Sin número"}
                                 </span>
                                 <span className="text-[10px] text-gray-400 font-bold uppercase">{new Date(order.createdAt).toLocaleDateString()}</span>
@@ -157,37 +159,37 @@ export const OrderTableUI = ({ orders, title, showCustomer = false, isAdmin = fa
                                 <span className="text-sm text-gray-500">{order.shippingAddress?.city}</span>
                                 <span className="font-black text-[#005596]">${order.total.toFixed(2)}</span>
                             </div>
-                            <div className = "flex flex-wrap gap-2">
-                                <span className = "px-2 py-1 rounded-full text-[9px] font-black uppercase bg-green-100 text-green-700">
-                                    Pago: {order.status}
-                                </span>
+                            <div className="flex flex-wrap gap-2">
                                 <span className={`px-2 py-1 rounded-full text-[9px] font-black uppercase ${getShipmentStyle(order.shipment?.status)}`}>
                                     {order.shipment?.status || "Sin envío"}
                                 </span>
                             </div>
-                            {/* BOTÓN MÓVIL */}
-                            <button 
-                                onClick={() => handleViewDetail(order)}
-                                className="w-full bg-gray-100 text-gray-700 py-2 rounded-lg text-xs font-bold active:bg-gray-200 transition-colors"
-                            >
-                                Ver Detalle del Pedido
-                            </button>
-                            <button
-                                onClick={()=> contactarSoporte(order.orderNumber)}
-                                className="w-full bg-blue-200 text-gray-700 py-2 rounded-lg text-xs font-bold active:bg-gray-200 transition-colors"
-                            >
-                                Contactar soporte
-                            </button>
+                            
+                            {/* BOTONES MÓVIL */}
+                            <div className="flex gap-2 pt-1">
+                                <button 
+                                    onClick={() => handleViewDetail(order)}
+                                    className="flex-1 bg-gray-100 text-gray-700 py-2 rounded-lg text-xs font-bold active:bg-gray-200 transition-colors border"
+                                >
+                                    Ver Detalle
+                                </button>
+                                <button
+                                    onClick={() => contactarSoporte(order.orderNumber, order._id)}
+                                    className="flex-1 bg-green-50 text-green-700 border border-green-300 py-2 rounded-lg text-xs font-bold active:bg-green-100 transition-colors flex items-center justify-center gap-1"
+                                >
+                                    <span>💬</span> Soporte
+                                </button>
+                            </div>
                         </div>
                     ))}
                 </div>
-                {/* Paginación simple*/ }
+
+                {/* Paginación */}
                 <div className="flex justify-center items-center gap-4 py-8 border-t border-gray-100">
                     <button
-                        disabled={page ===1}
-                        onClick={()=> setPage(p => p -1)}
-                        className="px-4 py-2 border rounded-md
-                        disabled:opacity-30 hover:bg-gray-50"
+                        disabled={page === 1}
+                        onClick={() => setPage(p => p - 1)}
+                        className="px-4 py-2 border rounded-md disabled:opacity-30 hover:bg-gray-50"
                     >
                         Anterior
                     </button>
@@ -202,15 +204,13 @@ export const OrderTableUI = ({ orders, title, showCustomer = false, isAdmin = fa
                 </div>
             </div>
 
-            {/* MODAL (Se renderiza fuera de la tabla) */}
+            {/* MODAL */}
             <ModalOrderDetail 
                 isOpen={isModalOpen} 
                 order={orderSelected} 
-                onClose={() => {
-                    setIsModalOpen(false)
-                }}
-                isAdmin = {isAdmin}
-                onUpdateShipment = {onUpdateShipment}
+                onClose={() => setIsModalOpen(false)}
+                isAdmin={isAdmin}
+                onUpdateShipment={onUpdateShipment}
             />
         </>
     );

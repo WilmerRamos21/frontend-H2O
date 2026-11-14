@@ -42,7 +42,7 @@ const CardProduct = ({ producto }) => {
             <div className="w-full aspect-square mb-4 overflow-hidden">
                 <Link to={`/producto/${producto._id}`}>
                 <img 
-                    src={image?.url || "/img/placeholder.jpg"} 
+                    src={image?.url || "/placeholder.jpg"} 
                     alt={name}
                     className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300"
                 />

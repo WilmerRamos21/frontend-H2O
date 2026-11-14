@@ -34,8 +34,7 @@ export const CartDrawer = () => {
                                 <img src={item.product.image?.url} className="w-20 h-20 object-contain rounded bg-gray-50" />
                                 <div className="grow">
                                     <h4 className="font-bold text-sm text-gray-800 line-clamp-2 uppercase">{item.product.name}</h4>
-                                    <p className="text-xs text-gray-400 mb-2">SKU: {item.product._id.slice(-6)}</p>
-                                    <div className="flex justify-between items-center">
+                                    <div className="flex justify-between items-center mt-4">
                                         <div className="flex items-center border rounded">
                                             <button onClick={() => updateQuantity(item.product._id, item.quantity - 1)} className="px-2 py-1">-</button>
                                             <span className="px-3 font-bold text-sm">{item.quantity}</span>

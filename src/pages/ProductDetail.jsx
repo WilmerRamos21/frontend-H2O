@@ -41,7 +41,7 @@ export const ProductDetailPage = () => {
                 {/* Lado Izquierdo: Imagen */}
                 <div className="flex flex-col items-center">
                     <img 
-                        src={producto.image?.url} 
+                        src={producto.image?.url || "/placeholder.jpg"} 
                         alt={producto.name}
                         className="w-full max-w-md object-contain hover:scale-105 transition-transform duration-300"
                     />

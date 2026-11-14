@@ -6,7 +6,6 @@ export const CardCreateUser = ({ onCreate }) => {
         nombre: "",
         apellido: "",
         email: "",
-        password: "",
         telefono: ""
     };
 
@@ -57,17 +56,6 @@ export const CardCreateUser = ({ onCreate }) => {
                     className="border p-2 rounded focus:ring-2 focus:ring-blue-500 outline-none"
                     value={formData.email} 
                     onChange={(e) => setFormData({...formData, email: e.target.value})}
-                    required
-                />
-            </div>
-
-            <div className="flex flex-col gap-1">
-                <label className="text-sm text-gray-500">Contraseña Temporal</label>
-                <input 
-                    type="password"
-                    className="border p-2 rounded focus:ring-2 focus:ring-blue-500 outline-none"
-                    value={formData.password} 
-                    onChange={(e) => setFormData({...formData, password: e.target.value})}
                     required
                 />
             </div>

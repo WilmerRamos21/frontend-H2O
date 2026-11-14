@@ -29,7 +29,7 @@ export const AdministradorPage = () => {
                 return true; 
             }
         } catch (error) {
-            toast.error("Error al crear empleado");
+            toast.error("Error al crear empleado", error);
             console.error(error);
             return false;
         }

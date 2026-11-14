@@ -8,6 +8,8 @@ const RegisterModal = ({ isOpen, onClose, onSwitchToLogin }) => {
 
     // 1. Estado inicial solo con email y password
     const [form, setForm] = useState({
+        name: "",
+        lastname: "",
         email: "",
         password: ""
     })
@@ -32,7 +34,7 @@ const RegisterModal = ({ isOpen, onClose, onSwitchToLogin }) => {
                 autoClose: 5000,
             })
             // Resetear el formulario y cerrar modal
-            setForm({ email: "", password: "" })
+            setForm({ name: "", lastname: "", email: "", password: "" })
             onClose()
         }
     }
@@ -42,6 +44,26 @@ const RegisterModal = ({ isOpen, onClose, onSwitchToLogin }) => {
             <h2 className="text-xl font-bold mb-4">Crear cuenta</h2>
 
             <form onSubmit={handleSubmit}>
+                {/* Campo de nombre completo*/}
+                <input
+                    type="text"
+                    name="name"
+                    value={form.name}
+                    placeholder="Nombres completos"
+                    className="w-full mb-3 p-2 border rounded focus:outline-none focus:ring-2 focus:ring-green-500"
+                    onChange={handleChange}
+                    required
+                />
+                <input
+                    type="text"
+                    name="lastname"
+                    value={form.lastname}
+                    placeholder="Apellidos completos"
+                    className="w-full mb-3 p-2 border rounded focus:outline-none focus:ring-2 focus:ring-green-500"
+                    onChange={handleChange}
+                    required
+                />
+                {/* Campo de apellido completo*/}
                 {/* Campo Correo */}
                 <input
                     type="email"
