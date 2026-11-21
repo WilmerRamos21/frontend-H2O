@@ -6,6 +6,8 @@ import { toast } from "react-toastify";
 import { useCart } from '../context/CartContext';
 import storeAuth from "../context/storeAuth";
 
+const DIGITS_CLEAN_REGEX = /\D/g;
+
 export const PaymentForm = () => {
     const stripe = useStripe();
     const elements = useElements();
@@ -30,6 +32,18 @@ export const PaymentForm = () => {
         city: "Quito",
         phone: user?.phone || ""
     });
+
+
+    const handlePhoneChange = (e) => {
+        const cleanPhone = e.target.value
+        .replace(DIGITS_CLEAN_REGEX, "")
+        .slice(0, 10);
+
+        setManualAddress((prev) => ({
+            ...prev,
+            phone: cleanPhone
+        }))
+    };
 
     useEffect(() => {
         const getFullUserProfile = async () => {
@@ -106,8 +120,6 @@ export const PaymentForm = () => {
             shippingAddress: direccionAEnviar
         };
 
-        console.log("Enviando al backend:", datosEnvio);
-
         // 3. Enviar al backend
         try {
             const res = await fetchData("checkout", datosEnvio, "POST");
@@ -131,7 +143,14 @@ export const PaymentForm = () => {
                 
                 {/* Mostramos las direcciones guardadas del perfil */}
                 {user?.addresses?.length > 0 && (
-                    <div className="space-y-2 mb-4">
+                    <div className="space-y-2 mb-4 max-h-70 overflow-y-auto pr-2">
+                        <button 
+                            type="button"
+                            onClick={() => setSelectedAddress(null)}
+                            className="text-lm text-blue-600 font-medium hover:underline py-1"
+                        >
+                            + Usar una dirección nueva para este envío
+                        </button>
                         {user.addresses.map((addr, i) => (
                             <div 
                                 key={i}
@@ -147,17 +166,12 @@ export const PaymentForm = () => {
                                 <p className="text-sm font-semibold text-gray-800">
                                     {addr.mainStreet} #{addr.houseNumber} {addr.crossStreet && `y ${addr.crossStreet}`}
                                 </p>
-                                <p className="text-xs text-gray-500">Sector: {addr.sector} - {addr.city}</p>
-                                {addr.reference && <p className="text-xs text-gray-400 italic">Ref: {addr.reference}</p>}
+                                <p className="text-lm text-gray-700 font-medium">Número de contacto: {user.phone}</p>
+                                <p className="text-lm text-gray-500">Sector: {addr.sector} - {addr.city}</p>
+                                {addr.reference && <p className="text-lm text-gray-400 italic">Ref: {addr.reference}</p>}
                             </div>
                         ))}
-                        <button 
-                            type="button"
-                            onClick={() => setSelectedAddress(null)}
-                            className="text-xs text-blue-600 font-medium hover:underline py-1"
-                        >
-                            + Usar una dirección nueva para este envío
-                        </button>
+
                     </div>
                 )}
 
@@ -219,11 +233,13 @@ export const PaymentForm = () => {
                                 className="w-1/2 p-2 text-sm border rounded bg-gray-100 text-gray-500 cursor-not-allowed"
                             />
                             <input 
-                                type="text" 
-                                placeholder="Teléfono de contacto *"
+                                type="text"
+                                inputMode="numeric"
+                                disabled
+                                placeholder="Número de contacto *"
                                 className="w-1/2 p-2 text-sm border rounded focus:ring-1 focus:ring-blue-500 outline-none bg-white"
                                 value={manualAddress.phone}
-                                onChange={(e) => setManualAddress({...manualAddress, phone: e.target.value})}
+                                onChange={handlePhoneChange}
                                 required
                             />
                         </div>

@@ -2,31 +2,71 @@ import { useState } from "react"
 import { useFetch } from "../hooks/useFetch"
 import { toast } from "react-toastify"
 
+const LETTERS_CLEAN_REGEX = /[^A-Za-zÁÉÍÓÚÜáéíóúüÑñ\s]/g;
+const DIGITS_CLEAN_REGEX = /\D/g;
+
 const RegisterModal = ({ isOpen, onClose, onSwitchToLogin }) => {
     const [showPassword, setShowPassword] = useState(false)
     const fetchData = useFetch()
 
     // 1. Estado inicial solo con email y password
-    const [form, setForm] = useState({
+    const initialState = {
         name: "",
         lastname: "",
         email: "",
-        password: ""
-    })
+        password: "",
+        phone: ""
+    }
 
     if (!isOpen) return null
+    const [formData, setFormData] = useState(initialState);
+    const [submitting, setSubmitting] = useState(false)
 
-    const handleChange = (e) => {
-        setForm({
-            ...form,
-            [e.target.name]: e.target.value
-        })
+        const handleLettersChange = (field) => (e) => {
+        const cleanValue = e.target.value
+            .replace(LETTERS_CLEAN_REGEX, "")
+            .slice(0, 50);
+        
+            setFormData((prev) => ({
+                ...prev,
+                [field]: cleanValue,
+            }))
+    };
+
+    const handleEmailChange = (e) => {
+        setFormData((prev) => ({
+            ...prev,
+            email: e.target.value,
+        }));
+    };
+
+    const handlePasswordChange = (e) => {
+        setFormData((prev) => ({
+            ...prev,
+            password: e.target.value,
+        }))
     }
+    const handlePhoneChange = (e) => {
+        const cleanPhone = e.target.value
+        .replace(DIGITS_CLEAN_REGEX, "")
+        .slice(0, 10);
+
+        setFormData((prev) => ({
+            ...prev,
+            phone: cleanPhone
+        }))
+    };
+
 
     const handleSubmit = async (e) => {
         e.preventDefault()
+        if (submitting) return
 
-        const data = await fetchData("/registro", form, "POST", {}, false)
+        setSubmitting(true)
+
+        try{
+
+        const data = await fetchData("/registro", formData, "POST", {}, false)
 
         if (data) {
             toast.info("Verifica tu correo electrónico", {
@@ -34,8 +74,10 @@ const RegisterModal = ({ isOpen, onClose, onSwitchToLogin }) => {
                 autoClose: 5000,
             })
             // Resetear el formulario y cerrar modal
-            setForm({ name: "", lastname: "", email: "", password: "" })
+            setFormData(initialState)
             onClose()
+        }} finally{
+            setSubmitting(false)
         }
     }
 
@@ -48,30 +90,45 @@ const RegisterModal = ({ isOpen, onClose, onSwitchToLogin }) => {
                 <input
                     type="text"
                     name="name"
-                    value={form.name}
+                    maxLength={50}
+                    value={formData.name}
                     placeholder="Nombres completos"
                     className="w-full mb-3 p-2 border rounded focus:outline-none focus:ring-2 focus:ring-green-500"
-                    onChange={handleChange}
-                    required
-                />
-                <input
-                    type="text"
-                    name="lastname"
-                    value={form.lastname}
-                    placeholder="Apellidos completos"
-                    className="w-full mb-3 p-2 border rounded focus:outline-none focus:ring-2 focus:ring-green-500"
-                    onChange={handleChange}
+                    onChange={handleLettersChange("name")}
                     required
                 />
                 {/* Campo de apellido completo*/}
+                <input
+                    type="text"
+                    name="lastname"
+                    maxLength={50}
+                    value={formData.lastname}
+                    placeholder="Apellidos completos"
+                    className="w-full mb-3 p-2 border rounded focus:outline-none focus:ring-2 focus:ring-green-500"
+                    onChange={handleLettersChange("lastname")}
+                    required
+                />
+                {/* Campo de numero de contacto*/}
+                <input
+                    type="text"
+                    name="phone"
+                    maxLength={10}
+                    inputMode="numeric"
+                    value={formData.phone}
+                    placeholder="Número de contacto"
+                    className="w-full mb-3 p-2 border rounded focus:outline-none focus:ring-2 focus:ring-green-500"
+                    onChange={handlePhoneChange}
+                    required
+                />
+
                 {/* Campo Correo */}
                 <input
                     type="email"
                     name="email"
-                    value={form.email}
+                    value={formData.email}
                     placeholder="Correo electrónico"
                     className="w-full mb-3 p-2 border rounded focus:outline-none focus:ring-2 focus:ring-green-500"
-                    onChange={handleChange}
+                    onChange={handleEmailChange}
                     required
                 />
 
@@ -80,10 +137,10 @@ const RegisterModal = ({ isOpen, onClose, onSwitchToLogin }) => {
                     <input
                         type={showPassword ? "text" : "password"}
                         name="password"
-                        value={form.password}
+                        value={formData.password}
                         placeholder="Contraseña"
                         className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-green-500"
-                        onChange={handleChange}
+                        onChange={handlePasswordChange}
                         required
                     />
                     <button

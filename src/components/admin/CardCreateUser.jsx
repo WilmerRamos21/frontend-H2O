@@ -1,5 +1,8 @@
 import { useState } from "react";
 
+const LETTERS_CLEAN_REGEX = /[^A-Za-zÁÉÍÓÚÜáéíóúüÑñ\s]/g;
+const DIGITS_CLEAN_REGEX = /\D/g;
+
 export const CardCreateUser = ({ onCreate }) => {
     // Estado inicial vacío para un nuevo empleado
     const initialState = {
@@ -10,14 +13,56 @@ export const CardCreateUser = ({ onCreate }) => {
     };
 
     const [formData, setFormData] = useState(initialState);
+    const [submitting, setSubmitting] = useState(false)
+
+    const handleLettersChange = (field) => (e) => {
+        const cleanValue = e.target.value
+            .replace(LETTERS_CLEAN_REGEX, "")
+            .slice(0, 50);
+        
+            setFormData((prev) => ({
+                ...prev,
+                [field]: cleanValue,
+            }))
+    };
+
+    const handlePhoneChange = (e) => {
+        const cleanPhone = e.target.value
+        .replace(DIGITS_CLEAN_REGEX, "")
+        .slice(0, 10);
+
+        setFormData((prev) => ({
+            ...prev,
+            telefono: cleanPhone
+        }))
+    };
+
+    const handleEmailChange = (e) => {
+        setFormData((prev) => ({
+            ...prev,
+            email: e.target.value,
+        }));
+    };
 
     const handleSubmit = async (e) => {
+
         e.preventDefault();
-        const success = await onCreate(formData);
-        if (success) {
-            setFormData(initialState); // Limpiar formulario tras éxito
+        if (submitting) return
+
+        setSubmitting(true)
+
+        try{
+
+            const success = await onCreate(formData);
+            if (success) {
+                setFormData(initialState); // Limpiar formulario tras éxito
+        }
+    } finally {
+        setSubmitting(false)
         }
     };
+
+
 
     return (
     <div className="bg-white p-6 rounded-xl shadow-sm border mb-6 max-w-2xl mx-auto">
@@ -31,19 +76,23 @@ export const CardCreateUser = ({ onCreate }) => {
             <div className="flex flex-col gap-1">
                 <label className="text-sm text-gray-500">Nombre</label>
                 <input 
+                    type="text"
+                    maxLength={50}
                     className="border p-2 rounded focus:ring-2 focus:ring-blue-500 outline-none" 
                     value={formData.nombre} 
-                    onChange={(e) => setFormData({...formData, nombre: e.target.value})}
-                    required
+                    onChange={handleLettersChange("nombre")}
+                    required 
                 />
             </div>
 
             <div className="flex flex-col gap-1">
                 <label className="text-sm text-gray-500">Apellido</label>
                 <input 
+                    type="text"
+                    maxLength={50}
                     className="border p-2 rounded focus:ring-2 focus:ring-blue-500 outline-none"
                     value={formData.apellido} 
-                    onChange={(e) => setFormData({...formData, apellido: e.target.value})}
+                    onChange={handleLettersChange("apellido")}
                     required
                 />
             </div>
@@ -55,7 +104,7 @@ export const CardCreateUser = ({ onCreate }) => {
                     type="email"
                     className="border p-2 rounded focus:ring-2 focus:ring-blue-500 outline-none"
                     value={formData.email} 
-                    onChange={(e) => setFormData({...formData, email: e.target.value})}
+                    onChange={handleEmailChange}
                     required
                 />
             </div>
@@ -63,9 +112,12 @@ export const CardCreateUser = ({ onCreate }) => {
             <div className="flex flex-col gap-1">
                 <label className="text-sm text-gray-500">Teléfono</label>
                 <input 
+                    type="text"
+                    inputMode="numeric"
+                    maxLength={10}
                     className="border p-2 rounded focus:ring-2 focus:ring-blue-500 outline-none"
                     value={formData.telefono} 
-                    onChange={(e) => setFormData({...formData, telefono: e.target.value})}
+                    onChange={handlePhoneChange}
                     required
                 />
             </div>

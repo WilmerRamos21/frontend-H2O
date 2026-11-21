@@ -54,9 +54,9 @@ export const ProfilePage = () => {
     // 3. Actualizar Datos Personales
     const handleUpdateProfile = async (newData) => {
         const datosParaBackend = {
-            name: newData.nombre,
-            lastname: newData.apellido,
-            phone: newData.telefono
+            name: newData.name ?? newData.nombre ?? "",
+            lastname: newData.lastname ?? newData.apellido ?? "",
+            phone: newData.phone ?? newData.telefono ?? ""
         };
         try {
             const res = await fetchData("actualizarperfil", datosParaBackend, "PUT");
