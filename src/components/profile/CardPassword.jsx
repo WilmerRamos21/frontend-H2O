@@ -26,7 +26,8 @@ export const CardPassword = ({ onUpdatePassword }) => {
         // Llamamos a la función que pasamos por props
         const success = await onUpdatePassword({
             passwordActual: passwords.passwordActual,
-            passwordNuevo: passwords.passwordNuevo
+            passwordNuevo: passwords.passwordNuevo,
+            confirmPassword: passwords.confirmPassword
         });
         
         if (success) {
