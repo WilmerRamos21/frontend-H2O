@@ -7,8 +7,8 @@ export const CardPassword = ({ onUpdatePassword }) => {
     const [showNuevo, setShowNuevo] = useState(false)
     const [showConfirm, setShowConfirm] = useState(false)
     const [passwords, setPasswords] = useState({
-        passwordactual: "",
-        passwordnuevo: "",
+        passwordActual: "",
+        passwordNuevo: "",
         confirmPassword: "" // Validación exclusiva del frontend
     });
 
@@ -19,18 +19,18 @@ export const CardPassword = ({ onUpdatePassword }) => {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        if (passwords.passwordnuevo !== passwords.confirmPassword) {
+        if (passwords.passwordNuevo !== passwords.confirmPassword) {
             return toast.error("Las nuevas contraseñas no coinciden");
         }
 
         // Llamamos a la función que pasamos por props
         const success = await onUpdatePassword({
-            passwordactual: passwords.passwordactual,
-            passwordnuevo: passwords.passwordnuevo
+            passwordActual: passwords.passwordActual,
+            passwordNuevo: passwords.passwordNuevo
         });
         
         if (success) {
-            setPasswords({ passwordactual: "", passwordnuevo: "", confirmPassword: "" });
+            setPasswords({ passwordActual: "", passwordNuevo: "", confirmPassword: "" });
             setIsEditing(false);
         }
     };
@@ -91,7 +91,7 @@ export const CardPassword = ({ onUpdatePassword }) => {
                             name="passwordactual"
                             placeholder="Ingresa tu clave actual"
                             className="w-full p-3 pr-20 border rounded-xl bg-gray-50 outline-none focus:ring-2 focus:ring-blue-500"
-                            value={passwords.passwordactual}
+                            value={passwords.passwordActual}
                             onChange={handleChange}
                             required
                         />
@@ -116,7 +116,7 @@ export const CardPassword = ({ onUpdatePassword }) => {
                             name="passwordnuevo"
                             placeholder="Mínimo 8 caracteres, mayúscula y número"
                             className="w-full p-3 pr-20 border rounded-xl bg-gray-50 outline-none focus:ring-2 focus:ring-blue-500"
-                            value={passwords.passwordnuevo}
+                            value={passwords.passwordNuevo}
                             onChange={handleChange}
                             required
                         />
