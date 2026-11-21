@@ -88,7 +88,7 @@ export const CardPassword = ({ onUpdatePassword }) => {
                     <div className="relative">
                         <input 
                             type={showActual ? "text" : "password"}
-                            name="passwordactual"
+                            name="passwordActual"
                             placeholder="Ingresa tu clave actual"
                             className="w-full p-3 pr-20 border rounded-xl bg-gray-50 outline-none focus:ring-2 focus:ring-blue-500"
                             value={passwords.passwordActual}
@@ -113,7 +113,7 @@ export const CardPassword = ({ onUpdatePassword }) => {
                     <div className="relative">
                         <input 
                             type={showNuevo ? "text" : "password"}
-                            name="passwordnuevo"
+                            name="passwordNuevo"
                             placeholder="Mínimo 8 caracteres, mayúscula y número"
                             className="w-full p-3 pr-20 border rounded-xl bg-gray-50 outline-none focus:ring-2 focus:ring-blue-500"
                             value={passwords.passwordNuevo}
